@@ -1,0 +1,29 @@
+/* Make sure this file is at: css/subpage.css */
+
+/* Apply gradient on all subpages that use #mainNav */
+body.subpage #mainNav,
+body.subpage #mainNav.navbar-shrink {
+  background: linear-gradient(
+    to bottom,
+    #000 0%,               /* black */
+    #444 35%,              /* dark gray */
+    #ccc 70%,              /* light gray */
+    rgba(255, 255, 255, 0) 100% /* fade into page */
+  ) !important;
+  transition: background 0.3s ease;
+}
+
+/* Make sure the text is visible */
+body.subpage #mainNav .navbar-brand,
+body.subpage #mainNav .nav-link {
+  color: #fff !important;
+}
+
+body.subpage #mainNav .nav-link:hover {
+  color: #e0e0e0 !important;
+}
+
+/* Optional: give the body a white background so the fade is obvious */
+body.subpage {
+  background-color: #ffffff;
+}

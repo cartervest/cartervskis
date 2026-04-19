@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Web App | Find the Ball Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+
+    <!-- Optional: same fonts as main site -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,600,700&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        --bg-dark: #111827;
+        --accent: #3b82f6;
+        --accent-soft: rgba(59, 130, 246, 0.12);
+        --danger: #ef4444;
+        --success: #22c55e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Nunito", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
+        color: #e5e7eb;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Simple top nav */
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 20;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      }
+
+      .nav-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .nav-brand {
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #e5e7eb;
+        text-decoration: none;
+        font-size: 0.95rem;
+      }
+
+      .nav-links a {
+        margin-left: 1.25rem;
+        font-size: 0.9rem;
+        color: #cbd5f5;
+        text-decoration: none;
+        position: relative;
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -3px;
+        width: 0;
+        height: 2px;
+        background: var(--accent);
+        transition: width 0.2s ease;
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5rem 1.5rem 2rem;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 1100px;
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+        gap: 2rem;
+        align-items: center;
+      }
+
+      @media (max-width: 900px) {
+        .app-container {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Left side: title & description */
+      .app-info h1 {
+        font-size: clamp(2.1rem, 3vw, 2.7rem);
+        margin-bottom: 0.5rem;
+      }
+
+      .app-info p.sub {
+        margin: 0;
+        color: #9ca3af;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: #bfdbfe;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.75rem;
+      }
+
+      .app-info ul {
+        padding-left: 1.1rem;
+        margin: 0.75rem 0 0;
+        color: #9ca3af;
+        font-size: 0.9rem;
+      }
+
+      /* Right side: game card */
+      .game-card {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.65);
+        padding: 1.5rem 1.5rem 1.75rem;
+      }
+
+      .game-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .game-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .level-pill {
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(96, 165, 250, 0.7);
+        font-size: 0.8rem;
+        color: #bfdbfe;
+      }
+
+      .stats-row {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+        color: #9ca3af;
+      }
+
+      .stats-row span {
+        padding: 0.25rem 0.5rem;
+        border-radius: 999px;
+        background: rgba(30, 64, 175, 0.3);
+      }
+
+      .game-area {
+        margin-top: 0.5rem;
+        padding: 1.25rem 1rem 1rem;
+        border-radius: 14px;
+        background: radial-gradient(circle at top, #1f2937 0, #020617 60%);
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        min-height: 320px; /* bigger box so cups stay inside even while sliding */
+      }
+
+      .game-status {
+        min-height: 2.3rem;
+        font-size: 0.9rem;
+        text-align: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .game-status span {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.9);
+      }
+
+      .game-status span strong {
+        margin-right: 0.35rem;
+      }
+
+      .game-status.success span {
+        border-color: rgba(34, 197, 94, 0.8);
+        color: #bbf7d0;
+      }
+
+      .game-status.error span {
+        border-color: rgba(239, 68, 68, 0.8);
+        color: #fecaca;
+      }
+
+      .cup-row {
+        margin-top: 0.75rem;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 3rem;
+        padding: 0.75rem 0;
+        position: relative;
+      }
+
+      .cup-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 90px;
+      }
+      /* Move Cup 1 label slightly left */
+      /* Add space after Cup 1 */
+      .cup-wrapper[data-cup="0"] .cup-label {
+          padding-right: 40px;
+      }
+
+      /* Add space before Cup 3 */
+      .cup-wrapper[data-cup="2"] .cup-label {
+          padding-left: 40px;
+      }
+
+      .cup {
+        width: 90px;
+        height: 120px;
+        border-radius: 20px 20px 8px 8px;
+        background: linear-gradient(145deg, #4b5563, #9ca3af);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+        position: relative;
+        cursor: pointer;
+        /* Now we slide smoothly between positions */
+        transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+      }
+
+      .cup::before {
+        content: "";
+        position: absolute;
+        inset: 6px 8px auto 8px;
+        height: 20px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 20% 0%, #f9fafb, #d1d5db 55%, #4b5563 100%);
+        opacity: 0.95;
+      }
+
+      .cup::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 70%;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.8);
+        filter: blur(3px);
+        opacity: 0.75;
+      }
+
+      .cup:hover {
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.85);
+        filter: brightness(1.03);
+      }
+
+      .cup.disabled {
+        cursor: default;
+        opacity: 0.7;
+        box-shadow: 0 10px 16px rgba(0, 0, 0, 0.65);
+      }
+
+      .cup.correct {
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.9),
+          0 16px 30px rgba(34, 197, 94, 0.45);
+      }
+
+      .cup.wrong {
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.9),
+          0 16px 30px rgba(239, 68, 68, 0.45);
+      }
+
+      .cup-label {
+        margin-top: 0.8rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #9ca3af;
+        letter-spacing: 1px;
+      }
+
+      .ball-peek {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 20%, #fef9c3, #f97316 60%, #7c2d12 100%);
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 0 12px rgba(248, 250, 252, 0.7);
+      }
+
+      .control-row {
+        margin-top: 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+      }
+
+      button {
+        border: none;
+        border-radius: 999px;
+        background: var(--accent);
+        color: white;
+        padding: 0.45rem 1.1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      button:hover:not(:disabled) {
+        background: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.35);
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: default;
+        box-shadow: none;
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: #9ca3af;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+      }
+
+      .btn-ghost:hover:not(:disabled) {
+        background: rgba(15, 23, 42, 0.8);
+        color: #e5e7eb;
+      }
+
+      .btn-danger {
+        background: var(--danger);
+      }
+
+      .btn-danger:hover:not(:disabled) {
+        background: #b91c1c;
+        box-shadow: 0 10px 18px rgba(248, 113, 113, 0.4);
+      }
+
+      .history {
+        margin-top: 0.9rem;
+        font-size: 0.8rem;
+        color: #9ca3af;
+        max-height: 110px;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+      }
+
+      .history-entry {
+        margin-bottom: 0.2rem;
+        padding-bottom: 0.2rem;
+        border-bottom: 1px dashed rgba(55, 65, 81, 0.8);
+      }
+
+      .history-entry:last-child {
+        border-bottom: none;
+      }
+
+      .text-success {
+        color: #bbf7d0;
+      }
+
+      .text-error {
+        color: #fecaca;
+      }
+
+      footer {
+        text-align: center;
+        padding: 0.75rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Simple nav -->
+    <nav>
+      <div class="nav-inner">
+        <a href="index.html" class="nav-brand">Logan Roberts</a>
+        <div class="nav-links">
+          <a href="about.html">About</a>
+          <a href="resume.html">Résumé</a>
+          <a href="webapp.html">Web App</a>
+          <a href="contact.html">Contact</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <div class="app-container">
+        <!-- Left: description -->
+        <section class="app-info">
+          <span class="badge">Web App • Built with AI</span>
+          <h1>Find the Ball</h1>
+          <p class="sub">
+            A classic 3-cup shell game: watch where the ball goes, follow the shuffles, <br> and pick the
+            right cup. Each level adds more shuffles and a faster pace.
+          </p>
+          <ul>
+            <li>Levels get progressively harder.</li>
+            <li>Follow the cups and test your focus.</li>
+            <li>Built with vanilla HTML, CSS, and JavaScript.</li>
+          </ul>
+        </section>
+
+        <!-- Right: game -->
+        <section class="game-card">
+          <div class="game-header-row">
+            <div class="game-title">Cup Shuffle Challenge</div>
+            <div class="level-pill">Level <span id="levelDisplay">1</span></div>
+          </div>
+
+          <div class="stats-row">
+            <span>Wins: <strong id="winsDisplay">0</strong></span>
+            <span>Attempts: <strong id="attemptsDisplay">0</strong></span>
+          </div>
+
+          <div id="status" class="game-status">
+            <span><strong>Ready?</strong> Click "Start Level" to begin.</span>
+          </div>
+
+          <div class="game-area">
+            <div class="cup-row">
+              <div class="cup-wrapper" data-cup="0">
+                <div class="cup" data-cup="0"></div>
+                <div class="cup-label">Cup 1</div>
+              </div>
+              <div class="cup-wrapper" data-cup="1">
+                <div class="cup" data-cup="1"></div>
+                <div class="cup-label">Cup 2</div>
+              </div>
+              <div class="cup-wrapper" data-cup="2">
+                <div class="cup" data-cup="2"></div>
+                <div class="cup-label">Cup 3</div>
+              </div>
+            </div>
+
+            <div class="control-row">
+              <button id="startBtn">Start Level</button>
+              <button id="repeatBtn" class="btn-ghost" disabled>Replay Level</button>
+              <button id="nextBtn" class="btn-ghost" disabled>Next Level</button>
+              <button id="resetBtn" class="btn-danger">Reset Game</button>
+            </div>
+
+            <div class="history" id="historyLog"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>Small web app created in collaboration with AI (ChatGPT).</footer>
+
+    <script>
+      // ----- GAME STATE -----
+      const TOTAL_CUPS = 3;
+      let currentLevel = 1;
+      let wins = 0;
+      let attempts = 0;
+
+      let ballCupIndex = 0; // which cup actually has the ball (0–2)
+      // slotForCup tells us which "lane" (left, center, right) each cup is in
+      let slotForCup = [0, 1, 2];
+      // horizontal offsets; tuned so cups stay inside the box while sliding
+      const slotOffsets = [-80, 0, 80];
+
+      let isShuffling = false;
+      let isGuessing = false;
+
+      // DOM ELEMENTS
+      const cups = Array.from(document.querySelectorAll(".cup"));
+
+      const statusEl = document.getElementById("status");
+      const levelDisplay = document.getElementById("levelDisplay");
+      const winsDisplay = document.getElementById("winsDisplay");
+      const attemptsDisplay = document.getElementById("attemptsDisplay");
+      const historyLog = document.getElementById("historyLog");
+
+      const startBtn = document.getElementById("startBtn");
+      const repeatBtn = document.getElementById("repeatBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      // ----- UTILS -----
+      function updateStats() {
+        levelDisplay.textContent = currentLevel;
+        winsDisplay.textContent = wins;
+        attemptsDisplay.textContent = attempts;
+      }
+
+      function setStatus(message, type = "") {
+        statusEl.className = "game-status";
+        if (type === "success") statusEl.classList.add("success");
+        if (type === "error") statusEl.classList.add("error");
+
+        statusEl.innerHTML = `<span>${message}</span>`;
+      }
+
+      function clearPeekBalls() {
+        document.querySelectorAll(".ball-peek").forEach((el) => el.remove());
+      }
+
+      // Cups slide horizontally using transform.
+      // Labels (Cup 1, 2, 3) stay under their static wrappers.
+      function renderCups() {
+        cups.forEach((cup, idx) => {
+          const slot = slotForCup[idx]; // 0, 1, or 2
+          const x = slotOffsets[slot];
+          cup.style.transform = `translateX(${x}px)`;
+        });
+      }
+
+      function disableCups() {
+        cups.forEach((cup) => cup.classList.add("disabled"));
+      }
+
+      function enableCups() {
+        cups.forEach((cup) => cup.classList.remove("disabled"));
+      }
+
+      function clearCupHighlights() {
+        cups.forEach((cup) => {
+          cup.classList.remove("correct", "wrong");
+        });
+      }
+
+      function logHistory(entryHtml) {
+        const div = document.createElement("div");
+        div.className = "history-entry";
+        div.innerHTML = entryHtml;
+        historyLog.prepend(div);
+      }
+
+      function getLevelConfig(level) {
+        const swaps = Math.min(4 + level * 2, 20);
+        const speed = Math.max(250, 900 - level * 60); // interval between swaps
+        return { swaps, speed };
+      }
+
+      // ----- GAME FLOW -----
+      function resetLayout() {
+        slotForCup = [0, 1, 2];
+        renderCups();
+        clearPeekBalls();
+        clearCupHighlights();
+      }
+
+      function placeBallAndPeek() {
+        // choose random cup index for the ball
+        ballCupIndex = Math.floor(Math.random() * TOTAL_CUPS);
+
+        // show a quick peek under that cup (visual only)
+        const cupEl = cups[ballCupIndex];
+        const peek = document.createElement("div");
+        peek.className = "ball-peek";
+        cupEl.appendChild(peek);
+
+        setTimeout(() => {
+          peek.remove();
+        }, 700);
+      }
+
+      function shuffleCups() {
+        const { swaps, speed } = getLevelConfig(currentLevel);
+        isShuffling = true;
+        isGuessing = false;
+        disableCups();
+        clearCupHighlights();
+        clearPeekBalls();
+
+        setStatus(
+          `<strong>Shuffling...</strong> Level ${currentLevel} • ${swaps} swaps`,
+          ""
+        );
+
+        let move = 0;
+
+        function doSwap() {
+          if (move >= swaps) {
+            isShuffling = false;
+            isGuessing = true;
+            enableCups();
+            setStatus(
+              `<strong>Your turn!</strong> Click the cup hiding the ball.`,
+              ""
+            );
+            return;
+          }
+
+          // pick two distinct cups to swap
+          let a = Math.floor(Math.random() * TOTAL_CUPS);
+          let b;
+          do {
+            b = Math.floor(Math.random() * TOTAL_CUPS);
+          } while (b === a);
+
+          // swap their lane assignments
+          const tmpSlot = slotForCup[a];
+          slotForCup[a] = slotForCup[b];
+          slotForCup[b] = tmpSlot;
+
+          // Sliding animation handled by CSS transition on transform:
+          renderCups();
+
+          move++;
+          setTimeout(doSwap, speed);
+        }
+
+        doSwap();
+      }
+
+      function startLevel(isReplay = false) {
+        if (isShuffling) return;
+
+        resetLayout();
+        clearPeekBalls();
+        clearCupHighlights();
+
+        isGuessing = false;
+        disableCups();
+        nextBtn.disabled = true;
+        repeatBtn.disabled = true;
+
+        if (!isReplay) {
+          setStatus(
+            `<strong>Watch closely!</strong> The ball will appear for a moment.`,
+            ""
+          );
+        } else {
+          setStatus(
+            `<strong>Replay level ${currentLevel}.</strong> Watch the ball again.`,
+            ""
+          );
+        }
+
+        // Peek, then shuffle
+        setTimeout(() => {
+          placeBallAndPeek();
+
+          setTimeout(() => {
+            shuffleCups();
+          }, 800);
+        }, 500);
+      }
+
+      function handleGuess(cupIndex) {
+        if (!isGuessing || isShuffling) return;
+
+        isGuessing = false;
+        disableCups();
+        attempts++;
+        updateStats();
+
+        clearCupHighlights();
+
+        const guessedCup = cups[cupIndex];
+        const correctCup = cups[ballCupIndex];
+
+        if (cupIndex === ballCupIndex) {
+          guessedCup.classList.add("correct");
+          wins++;
+          updateStats();
+          setStatus(
+            `<strong>Nice!</strong> You found the ball on level ${currentLevel}.`,
+            "success"
+          );
+          logHistory(
+            `<span class="text-success">✅ Correct</span> &mdash; Level ${currentLevel}, guessed Cup ${
+              cupIndex + 1
+            }.`
+          );
+          nextBtn.disabled = false;
+        } else {
+          guessedCup.classList.add("wrong");
+          correctCup.classList.add("correct");
+          setStatus(
+            `<strong>Not quite.</strong> The ball was under Cup ${
+              ballCupIndex + 1
+            }.`,
+            "error"
+          );
+          logHistory(
+            `<span class="text-error">❌ Wrong</span> &mdash; Level ${currentLevel}, guessed Cup ${
+              cupIndex + 1
+            }, ball was under Cup ${ballCupIndex + 1}.`
+          );
+        }
+
+        repeatBtn.disabled = false;
+      }
+
+      // ----- EVENT LISTENERS -----
+      cups.forEach((cup) => {
+        cup.addEventListener("click", () => {
+          if (cup.classList.contains("disabled")) return;
+          const idx = parseInt(cup.dataset.cup, 10);
+          handleGuess(idx);
+        });
+      });
+
+      startBtn.addEventListener("click", () => {
+        startLevel(false);
+      });
+
+      repeatBtn.addEventListener("click", () => {
+        startLevel(true);
+      });
+
+      nextBtn.addEventListener("click", () => {
+        currentLevel++;
+        updateStats();
+        startLevel(false);
+      });
+
+      resetBtn.addEventListener("click", () => {
+        currentLevel = 1;
+        wins = 0;
+        attempts = 0;
+        updateStats();
+        resetLayout();
+        clearPeekBalls();
+        clearCupHighlights();
+        historyLog.innerHTML = "";
+        nextBtn.disabled = true;
+        repeatBtn.disabled = true;
+        setStatus(
+          `<strong>Game reset.</strong> Click "Start Level" to play again.`,
+          ""
+        );
+      });
+
+      // initial render
+      renderCups();
+      updateStats();
+    </script>
+  </body>
+</html>
+
